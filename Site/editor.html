@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="css/bootstrap/bootstrap.min.css">
+	<link type="text/css" href="css/jquery-ui.min.css" rel="Stylesheet" />	
+	<!-- Remember to include jQuery :) -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0/jquery.min.js"></script>
+	<script type="text/javascript" src="js/jquery-ui.min.js"></script>
+
+	<script type="text/javascript" src="js/LoadFile.js"></script>
+	<script type="text/javascript" src="js/Rotate.js"></script>
+	<script type="text/javascript" src="js/Slider.js"></script>
+	
+	<script type="text/javascript" src = 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/14082/FileSaver.js'></script>
+	<link rel="stylesheet" type="text/css" href="css/main.css">
+
+	<link href='http://fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
+  <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
+
+  <!-- jQuery Modal -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.css" />
+
+	<title>Редактор</title>
+</head>
+<body>
+	<div class="row">
+		
+		<script type="text/javascript">
+				$.ajax({
+				    url: 'http://glassesar.mcdir.ru/json/1.json',             // указываем URL и
+				    dataType : "json",                     // тип загружаемых данных
+				    success: function (data) { // вешаем свой обработчик на функцию success
+				        jsonToMask(data);
+				    } 
+				});
+
+
+
+		</script>
+
+
+		<h2 style="text-align: center;">Онлайн редактор</h2>
+
+		<div class="container">
+		
+
+
+
+		<div class="col-lg-8 visual_panel">
+			<div id="mask" style="position: absolute;  transform-origin: 50% 50% 0px">
+				<img src="assets/left.png" style="position: absolute; top: -190px; left: -240px;" id="left">
+				<img src="assets/left.png" style="position: absolute; top: -190px; left: -240px;" id="right">
+			 	<img src="assets/glasses.png" style="position: absolute; top: -190px; left: -240px;" id="top">
+				
+			</div>
+		</div>
+		<div class="col-lg-4">
+			<div class="edit_panel">
+				
+
+				
+				<h1>Glasses AR</h1>
+				<div class="slider">
+					Левая душка: <div id="sliderLeft">
+					  <div id="custom-handleLeft" class="ui-slider-handle"></div>
+					</div>
+					Правая душка: <div id="sliderRight">
+					  <div id="custom-handleRight" class="ui-slider-handle"></div>
+					</div>
+					Вперед/Назад: <div id="sliderTop">
+					  <div id="custom-handleTop" class="ui-slider-handle"></div>
+					</div>
+				</div>
+
+				
+				
+				<br>
+				<div id="save" class="btn_example">Сохранить 3D <i class="fas fa-download"></i></div>
+				<div class="btn_example layer">
+												Загрузить оправу <i class="fas fa-upload"></i>
+										</div>
+				<div id="ex1" class="modal">
+				<div class="loads">
+					
+
+					<label class="fileContainer">
+					     Дужки
+					    <input type="file" onchange="previewFile('top', null,'FileTop')" name = 'FileTop' accept=".png">
+					</label>
+					<label class="fileContainer">
+					    Оправа
+					    <input type="file" onchange="previewFile('left', 'right', 'FileLeft')" name = 'FileLeft' accept=".json">
+					</label>
+
+					<label class="fileContainer">
+				    	3D (json)
+					    <input  type="file" id="files" name="files[]" multiple accept=".json">
+					</label>
+				</div>
+
+			</div> 
+			<div class="back"><a href="/">Вернуться в каталог</a></div>
+
+			<script type="text/javascript">
+				$( ".layer" ).click(function() {
+
+					  
+					  $("#ex1").modal({
+						  fadeDuration: 500,
+						  fadeDelay: 0.25 // Will fade in 750ms after the overlay finishes.
+						});
+					    stop = false;
+					});
+			</script>
+				<script type="text/javascript">
+					$('#save').click(function(){
+
+						var currTransL = $('#left').css('-webkit-transform').split(/[()]/)[1];
+						var posxL = currTransL.split(',')[14];
+
+						var currTransR = $('#right').css('-webkit-transform').split(/[()]/)[1];
+						var posxR = currTransR.split(',')[14];
+
+						var arr = {
+							  left: {
+							    src: $('#left').attr('src'),
+								top: $('#left').css('top'),
+								left: $('#left').css('left'),
+								trX: posxL
+
+							  },
+							  right: {
+							    src: $('#right').attr('src'),
+								top: $('#right').css('top'),
+								left: $('#right').css('left'),
+								trX: posxR
+							  },
+							  top: {
+							    src: $('#top').attr('src'),
+								top: $('#top').css('top'),
+								left: $('#top').css('left')
+							  }
+							};
+
+
+							var str = JSON.stringify(arr, "", 4);
+
+							var blob = new Blob([str], {type: "text/plain;charset=utf-8"});
+		    				saveAs(blob, "3D.json");
+
+							console.log(str);
+					});
+
+				</script>
+
+
+
+
+				<script type="text/javascript">
+					var json;
+
+					function handleFileSelect(evt) {
+						var files = evt.target.files; // FileList object
+
+						// files is a FileList of File objects. List some properties.
+
+					}
+
+					document.getElementById('files').addEventListener('change', handleFileSelect, false);
+
+					function handleFileSelect(evt) {
+						var files = evt.target.files; // FileList object
+
+						// files is a FileList of File objects. List some properties.
+						var output = [];
+						for (var i = 0, f; f = files[i]; i++) {
+							var reader = new FileReader();
+
+							// Closure to capture the file information.
+							reader.onload = (function (theFile) {
+								return function (e) {
+									try {
+										json = JSON.parse(e.target.result);
+										//alert('json global var has been set to parsed json of this file here it is unevaled = \n' + JSON.stringify(json));
+										console.log(json.left.left);
+
+										jsonToMask(json);
+
+
+
+
+									}
+									catch{} 
+								}
+							})(f);
+							reader.readAsText(f);
+						}
+
+					}
+
+					function jsonToMask(json){
+
+						$('#right').css({"-webkit-transform":" rotateY( 90deg ) translateZ( 126px )  translateX("+(json.right.trX*-1)+"px)"});
+		    			$('#left').css({"-webkit-transform":" rotateY( 90deg ) translateZ( -126px )  translateX("+(json.left.trX*-1)+"px)"});
+						$('#left').css('left', json.left.left);
+						$('#left').attr('src', json.left.src);
+						$('#left').css('top', json.left.top);
+
+						$('#right').css('left', json.right.left);
+						$('#right').attr('src', json.right.src);
+						$('#right').css('top', json.right.top);
+
+						$('#top').css('left', json.top.left);
+						$('#top').attr('src', json.top.src);
+						$('#top').css('top', json.top.top);
+						$.modal.close();
+
+						console.log(json.left.trX);
+						
+
+						
+					}
+
+					document.getElementById('files').addEventListener('change', handleFileSelect, false);
+				</script>
+			</div>
+		</div>
+		</div>
+	</div>
+
+</body>
+
+</html>
